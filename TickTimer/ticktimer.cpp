@@ -8,10 +8,9 @@ TickTimer::TickTimer(QObject *parent) :
 
 
 
-void TickTimer::stopWhenTicksOver(bool stop)
+TickTimer::~TickTimer()
 {
-    if (m_state == TickTimer::Inactive)
-        m_stopWhenTicksOver = stop;
+    delete elapsedTimer;
 }
 
 
@@ -43,7 +42,15 @@ void TickTimer::setTicksCount(int count)
 void TickTimer::setType(TickTimer::Type type)
 {
     if (m_state == TickTimer::Inactive)
-        m_type = type;
+        m_timerType = type;
+}
+
+
+
+void TickTimer::stopWhenTicksOver(bool stop)
+{
+    if (m_state == TickTimer::Inactive)
+        m_stopWhenTicksOver = stop;
 }
 
 
@@ -57,10 +64,8 @@ void TickTimer::start()
     elapsedTimer->start();
 
     if (m_ticksInterval >= 0 && m_ticksCount != 0) {
-        if (tickTimer == Q_NULLPTR) {
-            tickTimer = new QTimer(this);
-            startTimer(tickTimer, this, &TickTimer::_tick);
-        }
+        if (tickTimer == Q_NULLPTR)
+            tickTimer = newTimer(&TickTimer::_tick);
         tickTimer->start(m_ticksInterval);
     }
     else if (tickTimer != Q_NULLPTR) {
@@ -70,13 +75,11 @@ void TickTimer::start()
     }
 
     if (!m_stopWhenTicksOver && m_duration >= 0) {
-        if (mainTimer == Q_NULLPTR) {
-            mainTimer = new QTimer(this);
-            startTimer(mainTimer, this, [this]() {
+        if (mainTimer == Q_NULLPTR)
+            mainTimer = newTimer([this]() {
                 stop();
                 emit timeout();
             });
-        }
         mainTimer->start(m_duration);
     }
     else if (mainTimer != Q_NULLPTR) {
@@ -91,15 +94,19 @@ void TickTimer::start()
 
 
 
-template <class Obj, typename Func1>
-void TickTimer::startTimer(QTimer *timer, const Obj *object, Func1 slot)
+template<typename Func>
+QTimer *TickTimer::newTimer(Func slot)
 {
+    QTimer *timer = new QTimer(this);
     timer->setSingleShot(true);
-    if (m_type != CoarseStabilized)
-        timer->setTimerType(static_cast<Qt::TimerType>(m_type));
+
+    if (m_timerType != CoarseStabilized)
+        timer->setTimerType(static_cast<Qt::TimerType>(m_timerType));
     else
         timer->setTimerType(Qt::TimerType::CoarseTimer);
-    connect(timer, &QTimer::timeout, object, slot);
+
+    connect(timer, &QTimer::timeout, this, slot);
+    return timer;
 }
 
 
@@ -128,14 +135,14 @@ void TickTimer::resume()
         elapsedTimer->restart();
 
         if (tickTimer != Q_NULLPTR) {
-            int timeToTick = m_ticksInterval + m_lastTickElapsed - m_elapsed;
+            int timeToTick = m_lastTickElapsed + tickTimer->interval() - m_elapsed;
             if (timeToTick < 0)
                 timeToTick = 0;
 
             QTimer::singleShot(timeToTick, this, [this]() {
                 if (m_state == Running) {
                     _tick();
-                    tickTimer->start(_ticksInterval());
+                    tickTimer->start(newTicksInterval());
                 }
             });
         }
@@ -235,14 +242,14 @@ void TickTimer::_tick()
         emit timeout();
     }
     else
-        tickTimer->start(_ticksInterval());
+        tickTimer->start(newTicksInterval());
 }
 
 
 
-int TickTimer::_ticksInterval()
+int TickTimer::newTicksInterval()
 {
-    if (m_type != CoarseStabilized)
+    if (m_timerType != CoarseStabilized)
         return m_ticksInterval;
 
     double newInterval = static_cast<double>(m_lastTickElapsed)*static_cast<double>(tickTimer->interval())/static_cast<double>(elapsed());

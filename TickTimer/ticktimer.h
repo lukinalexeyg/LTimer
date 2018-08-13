@@ -25,19 +25,21 @@ public:
     };
 
     TickTimer(QObject *parent = nullptr);
-    inline ~TickTimer()                                 {delete elapsedTimer;}
+    ~TickTimer();
 
     void setDuraton(int duration);
     void setTicksInterval(int interval);
     void setTicksCount(int count);
     void stopWhenTicksOver(bool stop);
-    void setType(TickTimer::Type type);
+    void setType(TickTimer::Type timerType);
 
     inline int duration()                               {return m_duration;}
     inline int ticksInterval()                          {return m_ticksInterval;}
     inline int ticksCount()                             {return m_ticksCount;}
     inline bool willStopWhenTicksOver()                 {return m_stopWhenTicksOver;}
-    inline TickTimer::Type type()                       {return m_type;}
+    inline QElapsedTimer::ClockType clockType()         {return elapsedTimer->clockType();}
+    inline bool isMonotonic()                           {return elapsedTimer->isMonotonic();}
+    inline TickTimer::Type timerType()                  {return m_timerType;}
 
     void start();
     void pause();
@@ -65,18 +67,18 @@ private:
     int m_duration = -1;
     int m_ticksInterval = 1000;
     int m_ticksCount = -1;
-    Type m_type = CoarseStabilized;
+    Type m_timerType = CoarseStabilized;
     State m_state = Inactive;
 
     int m_elapsed = 0;
     int m_lastTickElapsed = 0;
     int m_lastTick = 0;
 
-    template <class Obj, typename Func1>
-    void startTimer(QTimer *timer, const Obj *object, Func1 slot);
+    template<typename Func>
+    QTimer *newTimer(Func slot);
     int _duration();
     void _tick();
-    int _ticksInterval();
+    int newTicksInterval();
 };
 
 #endif // TICKTIMER_H

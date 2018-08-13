@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../src/ticktimer.h"
+#include "../TickTimer/ticktimer.h"
 
 namespace Ui {
 class MainWindow;

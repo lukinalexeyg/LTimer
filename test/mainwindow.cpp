@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_ticksInterval->setValue(DEFAULT_TICKS_INTERVAL);
     ui->spinBox_ticksCount->setValue(DEFAULT_TICKS_COUNT);
     ui->comboBox_type->insertItems(0, TYPES);
-    ui->comboBox_type->setCurrentIndex(timer->type());
+    ui->comboBox_type->setCurrentIndex(timer->timerType());
     ui->checkBox_stopWhenTicksOver->setChecked(timer->willStopWhenTicksOver());
 
     timer->setDuraton(DEFAULT_DURATION);

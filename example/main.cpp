@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <math.h>
-#include "../src/ticktimer.h"
+#include "../TickTimer/ticktimer.h"
 
 int main(int argc, char *argv[])
 {

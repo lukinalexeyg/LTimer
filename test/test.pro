@@ -37,4 +37,4 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-include(../src/src.pri)
+include(../TickTimer/TickTimer.pri)
