@@ -142,7 +142,7 @@ void TickTimer::resume()
             QTimer::singleShot(timeToTick, this, [this]() {
                 if (m_state == Running) {
                     _tick();
-                    tickTimer->start(newTicksInterval());
+                    tickTimer->start(newTickInterval());
                 }
             });
         }
@@ -242,12 +242,12 @@ void TickTimer::_tick()
         emit timeout();
     }
     else
-        tickTimer->start(newTicksInterval());
+        tickTimer->start(newTickInterval());
 }
 
 
 
-int TickTimer::newTicksInterval()
+int TickTimer::newTickInterval()
 {
     if (m_timerType != CoarseStabilized)
         return m_ticksInterval;

@@ -28,18 +28,20 @@ public:
     ~TickTimer();
 
     void setDuraton(int duration);
-    void setTicksInterval(int interval);
-    void setTicksCount(int count);
-    void stopWhenTicksOver(bool stop);
-    void setType(TickTimer::Type timerType);
-
     inline int duration()                               {return m_duration;}
+
+    void setTicksInterval(int interval);
     inline int ticksInterval()                          {return m_ticksInterval;}
+    void setTicksCount(int count);
     inline int ticksCount()                             {return m_ticksCount;}
+
+    void stopWhenTicksOver(bool stop);
     inline bool willStopWhenTicksOver()                 {return m_stopWhenTicksOver;}
+
+    void setType(TickTimer::Type timerType);
+    inline TickTimer::Type timerType()                  {return m_timerType;}
     inline QElapsedTimer::ClockType clockType()         {return elapsedTimer->clockType();}
     inline bool isMonotonic()                           {return elapsedTimer->isMonotonic();}
-    inline TickTimer::Type timerType()                  {return m_timerType;}
 
     void start();
     void pause();
@@ -78,7 +80,7 @@ private:
     QTimer *newTimer(Func slot);
     int _duration();
     void _tick();
-    int newTicksInterval();
+    int newTickInterval();
 };
 
 #endif // TICKTIMER_H
