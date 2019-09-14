@@ -3,10 +3,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    timer(new TickTimer(this))
+    m_lTimer(new LTimer(this))
 {
     ui->setupUi(this);
     setWindowTitle(qApp->applicationName());
@@ -14,64 +16,26 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_duration->setValue(DEFAULT_DURATION);
     ui->spinBox_ticksInterval->setValue(DEFAULT_TICKS_INTERVAL);
     ui->spinBox_ticksCount->setValue(DEFAULT_TICKS_COUNT);
-    ui->comboBox_type->insertItems(0, TYPES);
-    ui->comboBox_type->setCurrentIndex(timer->timerType());
-    ui->checkBox_stopWhenTicksOver->setChecked(timer->willStopWhenTicksOver());
+    ui->comboBox_type->insertItems(0, TYPES_STRINGS);
+    ui->comboBox_type->setCurrentIndex(m_lTimer->timerType());
+    ui->checkBox_stopWhenTicksOver->setChecked(m_lTimer->willStopWhenTicksOver());
 
-    timer->setDuraton(DEFAULT_DURATION);
-    timer->setTicksInterval(DEFAULT_TICKS_INTERVAL);
-    timer->setTicksCount(DEFAULT_TICKS_COUNT);
+    m_lTimer->setDuraton(DEFAULT_DURATION);
+    m_lTimer->setTicksInterval(DEFAULT_TICKS_INTERVAL);
+    m_lTimer->setTicksCount(DEFAULT_TICKS_COUNT);
 
     setProgressBarValue();
 
-    connect(ui->pushButton_get, &QPushButton::released, this, [this]() {
-        ui->lineEdit_elapsed->setText(QString::number(timer->elapsed()));
-        ui->lineEdit_remaining->setText(QString::number(timer->remaining()));
-        ui->lineEdit_lastTickElapsed->setText(QString::number(timer->lastTickElapsed()));
-        ui->lineEdit_lastTickRemaining->setText(QString::number(timer->lastTickRemaining()));
+    connect(ui->pushButton_get, &QPushButton::released, this, &MainWindow::onGet);
+    connect(ui->pushButton_start, &QPushButton::released, this, &MainWindow::start);
+    connect(ui->pushButton_pause, &QPushButton::released, this, &MainWindow::pause);
+    connect(ui->pushButton_resume, &QPushButton::released, m_lTimer, &LTimer::resume);
+    connect(ui->pushButton_stop, &QPushButton::released, this, &MainWindow::stop);
+    connect(m_lTimer, &LTimer::tick, this, &MainWindow::tick);
+
+    connect(m_lTimer, &LTimer::stateChanged, this, [this](int state) {
+        ui->statusBar->showMessage("Current state: "+STATES_STRINGS.at(state));
     });
-
-    connect(ui->pushButton_start, &QPushButton::released, this, [this]() {
-        setWidgetsEnabled(false);
-        timer->setDuraton(ui->spinBox_duration->value());
-        timer->setTicksInterval(ui->spinBox_ticksInterval->value());
-        timer->setTicksCount(ui->spinBox_ticksCount->value());
-        timer->setType(static_cast<TickTimer::Type>(ui->comboBox_type->currentIndex()));
-        timer->stopWhenTicksOver(ui->checkBox_stopWhenTicksOver->isChecked());
-        timer->start();
-        setProgressBarValue();
-        qDebug() << "start ===========================================================================";
-    });
-
-    connect(ui->pushButton_pause, &QPushButton::released, this, [this]() {
-        if (timer->state() == TickTimer::Running) {
-            timer->pause();
-            qDebug() << "pause ===========================================================================";
-            qDebug() << " elapsed =" << timer->elapsed()
-                     << " remaining =" << timer->remaining()
-                     << " lastTickElapsed =" << timer->lastTickElapsed()
-                     << " lastTickRemaining =" << timer->lastTickRemaining();
-        }
-    });
-
-    connect(ui->pushButton_resume, &QPushButton::released, timer, &TickTimer::resume);
-
-    connect(ui->pushButton_stop, &QPushButton::released, this, [this]() {
-        setWidgetsEnabled(true);
-        timer->stop();
-        setProgressBarValue();
-    });
-
-    connect(timer, &TickTimer::tick, this, [this](int tick) {
-        setProgressBarValue();
-        qDebug() << "tick =" << tick
-                 << " elapsed =" << timer->elapsed()
-                 << " remaining =" << timer->remaining()
-                 << " lastTickElapsed =" << timer->lastTickElapsed()
-                 << " lastTickRemaining =" << timer->lastTickRemaining();
-    });
-
-    connect(timer, &TickTimer::stateChanged, this, [this](int state) {ui->statusBar->showMessage("Current state: "+STATES.at(state));});
 }
 
 
@@ -79,6 +43,72 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+
+void MainWindow::onGet()
+{
+    ui->lineEdit_elapsed->setText(QString::number(m_lTimer->elapsed()));
+    ui->lineEdit_remaining->setText(QString::number(m_lTimer->remaining()));
+    ui->lineEdit_lastTickElapsed->setText(QString::number(m_lTimer->lastTickElapsed()));
+    ui->lineEdit_lastTickRemaining->setText(QString::number(m_lTimer->lastTickRemaining()));
+}
+
+
+
+void MainWindow::start()
+{
+    setWidgetsEnabled(false);
+
+    m_lTimer->setDuraton(ui->spinBox_duration->value());
+    m_lTimer->setTicksInterval(ui->spinBox_ticksInterval->value());
+    m_lTimer->setTicksCount(ui->spinBox_ticksCount->value());
+    m_lTimer->setType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
+    m_lTimer->stopWhenTicksOver(ui->checkBox_stopWhenTicksOver->isChecked());
+    m_lTimer->start();
+
+    setProgressBarValue();
+
+    qDebug() << "start ===========================================================================";
+}
+
+
+
+void MainWindow::pause()
+{
+    if (m_lTimer->state() != LTimer::Running)
+        return;
+
+    m_lTimer->pause();
+
+    qDebug() << "pause ===========================================================================";
+    qDebug() << "elapsed =" << m_lTimer->elapsed()
+             << " remaining =" << m_lTimer->remaining()
+             << " lastTickElapsed =" << m_lTimer->lastTickElapsed()
+             << " lastTickRemaining =" << m_lTimer->lastTickRemaining();
+}
+
+
+
+void MainWindow::stop()
+{
+    setWidgetsEnabled(true);
+    m_lTimer->stop();
+    setProgressBarValue();
+}
+
+
+
+void MainWindow::tick(int tick)
+{
+    setProgressBarValue();
+
+    qDebug() << "tick =" << tick
+             << " elapsed =" << m_lTimer->elapsed()
+             << " remaining =" << m_lTimer->remaining()
+             << " lastTickElapsed =" << m_lTimer->lastTickElapsed()
+             << " lastTickRemaining =" << m_lTimer->lastTickRemaining();
 }
 
 
@@ -96,17 +126,17 @@ void MainWindow::setWidgetsEnabled(bool enabled)
 
 void MainWindow::setProgressBarValue()
 {
-    ui->progressBar->setValue(timer->lastTick());
+    ui->progressBar->setValue(m_lTimer->lastTick());
 
-    if (timer->ticksCount() > 0) {
+    if (m_lTimer->ticksCount() > 0) {
         ui->progressBar->setMinimum(0);
-        ui->progressBar->setMaximum(timer->ticksCount());
+        ui->progressBar->setMaximum(m_lTimer->ticksCount());
     }
     else {
         ui->progressBar->setMinimum(0);
         ui->progressBar->setMaximum(INT_MAX);
     }
 
-    QString text = QString("%1 / %2").arg(timer->lastTick()).arg(timer->ticksCount());
+    const QString text = QString("%1 / %2").arg(m_lTimer->lastTick()).arg(m_lTimer->ticksCount());
     ui->progressBar->setFormat(text);
 }

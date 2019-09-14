@@ -2,7 +2,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 HEADERS += \
-    $$PWD/ticktimer.h
+    $$PWD/ltimer.h
 	
 SOURCES += \
-    $$PWD/ticktimer.cpp
+    $$PWD/ltimer.cpp

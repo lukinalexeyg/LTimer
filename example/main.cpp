@@ -1,12 +1,12 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <math.h>
-#include "../TickTimer/ticktimer.h"
+#include "../LTimer/ltimer.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    TickTimer tickTimer;
+    LTimer tickTimer;
 
     qDebug() << "start";
     tickTimer.start();

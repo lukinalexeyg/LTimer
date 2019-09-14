@@ -6,7 +6,7 @@
 
 QT       += core gui widgets
 
-TARGET = TickTimer test
+TARGET = LTimer precision test
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -25,9 +25,11 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+    precisiontest.cpp
 
 HEADERS += \
         mainwindow.h \
+    precisiontest.h
 
 FORMS += \
         mainwindow.ui
