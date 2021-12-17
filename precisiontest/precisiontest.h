@@ -1,14 +1,8 @@
 #ifndef PRECISIONTEST_H
 #define PRECISIONTEST_H
 
-#include <QObject>
-#include "../LTimer/ltimer.h"
+#include "ltimer.h"
 #include "ui_mainwindow.h"
-
-const int DEFAULT_MIN_TICK_INTERVAL = 1;
-const int DEFAULT_MAX_TICK_INTERVAL = 1000;
-const int DEFAULT_TICK_INTERVAL_STEP = 1;
-const int DEFAULT_TICKS_COUNT = 100;
 
 class PrecisionTest : public QObject
 {
@@ -16,11 +10,12 @@ class PrecisionTest : public QObject
 
 public:
     explicit PrecisionTest(Ui::MainWindow *ui, QObject *parent = nullptr);
+
     void run();
     void stop();
 
 signals:
-    void step(int ticksInterval, double m_averageFault);
+    void step(const int ticksInterval, const double m_averageFault);
     void done();
 
 private:
@@ -32,7 +27,7 @@ private:
 private:
     void tick();
     void timeout();
-    void _run(int ticksInterval);
+    void _run(const int ticksInterval);
 };
 
 #endif // PRECISIONTEST_H

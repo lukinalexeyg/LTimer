@@ -1,13 +1,12 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2018-08-01T23:46:59
-#
-#-------------------------------------------------
+QT += core gui widgets
 
-QT       += core gui widgets
+TARGET = LTimerPrecisionTest
 
-TARGET = LTimer precision test
 TEMPLATE = app
+
+QMAKE_TARGET_PRODUCT = $${TARGET}
+
+DEFINES += APP_PRODUCT=\\\"$$QMAKE_TARGET_PRODUCT\\\"
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -23,20 +22,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
+    main.cpp \
+    mainwindow.cpp \
     precisiontest.cpp
 
 HEADERS += \
-        mainwindow.h \
+    mainwindow.h \
     precisiontest.h
 
 FORMS += \
-        mainwindow.ui
+    mainwindow.ui
+
+include(../LTimer/LTimer.pri)
+
+DESTDIR = bin
+MOC_DIR = moc
+OBJECTS_DIR = obj
+RCC_DIR = rcc
+UI_DIR = ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-include(../LTimer/LTimer.pri)

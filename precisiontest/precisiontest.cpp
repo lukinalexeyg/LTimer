@@ -1,13 +1,14 @@
-#include <QDebug>
 #include "precisiontest.h"
+
+#include <QDebug>
 
 
 
 PrecisionTest::PrecisionTest(Ui::MainWindow *ui, QObject *parent) :
     QObject(parent),
+    m_lTimer(new LTimer(this)),
     ui(ui)
 {
-    m_lTimer = new LTimer(this);
     m_lTimer->stopWhenTicksOver(true);
 
     connect(m_lTimer, &LTimer::tick, this, &PrecisionTest::tick);

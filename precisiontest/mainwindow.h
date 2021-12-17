@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "precisiontest.h"
+
+#include <QMainWindow>
 
 namespace Ui {
 class MainWindow;
@@ -17,8 +18,6 @@ public:
     ~MainWindow();
 
 private:
-    const QStringList TYPE_STRINGS = { "Precise", "Coarse", "VeryCoarse", "CoarseStabilized" };
-
     Ui::MainWindow *ui;
     PrecisionTest *m_precisionTest;
     int m_stepsCount;
@@ -27,8 +26,8 @@ private:
 private:
     void run();
     void stop();
-    void changeStep(int ticksInterval, double averageFault);
-    void setWidgetsEnabled(bool enabled);
+    void changeStep(const int ticksInterval, const double averageFault);
+    void setWidgetsEnabled(const bool enabled);
     void save();
 };
 

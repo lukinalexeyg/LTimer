@@ -1,8 +1,17 @@
-#include <QSpinBox>
-#include <QFileDialog>
-#include <QTextStream>
 #include "mainwindow.h"
+
 #include "ui_mainwindow.h"
+
+#include <QFileDialog>
+#include <QSpinBox>
+#include <QTextStream>
+
+static const QStringList s_typeNames = { "Precise", "Coarse", "VeryCoarse", "CoarseStabilized" };
+
+static constexpr int s_defaultMinTickInterval = 1;
+static constexpr int s_defaultMaxTickInterval = 1000;
+static constexpr int s_defaultTickIntervalStep = 1;
+static constexpr int s_defaultTicksCount = 100;
 
 
 
@@ -14,11 +23,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(qApp->applicationName());
 
-    ui->spinBox_minTicksInterval->setValue(DEFAULT_MIN_TICK_INTERVAL);
-    ui->spinBox_maxTicksInterval->setValue(DEFAULT_MAX_TICK_INTERVAL);
-    ui->spinBox_ticksIntervalStep->setValue(DEFAULT_TICK_INTERVAL_STEP);
-    ui->spinBox_ticksCount->setValue(DEFAULT_TICKS_COUNT);
-    ui->comboBox_type->insertItems(0, TYPE_STRINGS);
+    ui->spinBox_minTicksInterval->setValue(s_defaultMinTickInterval);
+    ui->spinBox_maxTicksInterval->setValue(s_defaultMaxTickInterval);
+    ui->spinBox_ticksIntervalStep->setValue(s_defaultTickIntervalStep);
+    ui->spinBox_ticksCount->setValue(s_defaultTicksCount);
+    ui->comboBox_type->insertItems(0, s_typeNames);
 
     connect(ui->pushButton_run,     &QPushButton::released, this, &MainWindow::run);
     connect(ui->pushButton_stop,    &QPushButton::released, this, &MainWindow::stop);
@@ -44,8 +53,8 @@ void MainWindow::run()
 {
     setWidgetsEnabled(false);
     ui->textBrowser->clear();
-    m_stepsCount = (ui->spinBox_maxTicksInterval->value()-ui->spinBox_minTicksInterval->value())
-            /ui->spinBox_ticksIntervalStep->value()+1;
+    m_stepsCount = (ui->spinBox_maxTicksInterval->value() - ui->spinBox_minTicksInterval->value())
+            / ui->spinBox_ticksIntervalStep->value() + 1;
     m_currentStep = 0;
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(m_stepsCount);
@@ -62,7 +71,7 @@ void MainWindow::stop()
 
 
 
-void MainWindow::changeStep(int ticksInterval, double averageFault)
+void MainWindow::changeStep(const int ticksInterval, const double averageFault)
 {
     const QString text = QString("%1   %2").arg(ticksInterval).arg(QString::number(averageFault, 'f', 6));
     ui->textBrowser->append(text);
@@ -74,7 +83,7 @@ void MainWindow::changeStep(int ticksInterval, double averageFault)
 
 
 
-void MainWindow::setWidgetsEnabled(bool enabled)
+void MainWindow::setWidgetsEnabled(const bool enabled)
 {
     ui->spinBox_minTicksInterval->setEnabled(enabled);
     ui->spinBox_maxTicksInterval->setEnabled(enabled);
@@ -87,8 +96,10 @@ void MainWindow::setWidgetsEnabled(bool enabled)
 
 void MainWindow::save()
 {
-    QString fileName;
-    fileName = QFileDialog::getSaveFileName(this, tr("Save"), "ltimer.txt", "*.txt");
+    const QString fileName = QFileDialog::getSaveFileName(this,
+                                                          QStringLiteral("Save"),
+                                                          QStringLiteral("ltimer.txt"),
+                                                          QStringLiteral("*.txt"));
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);
