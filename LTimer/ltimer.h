@@ -1,8 +1,6 @@
 #ifndef LTIMER_H
 #define LTIMER_H
 
-#pragma once
-
 #include <QElapsedTimer>
 #include <QTimer>
 
@@ -24,36 +22,40 @@ public:
         CoarseStabilized
     };
 
-    LTimer(QObject *parent = Q_NULLPTR);
+public:
+    LTimer(QObject *parent = nullptr);
     ~LTimer();
 
-    void setDuraton(int duration);
-    inline int duration()                       { return m_duration; }
+    LTimer::State state() const                 { return m_state; }
 
-    void setTicksInterval(int interval);
-    inline int ticksInterval()                  { return m_ticksInterval; }
-    void setTicksCount(int count);
-    inline int ticksCount()                     { return m_ticksCount; }
+    void setDuraton(const int duration);
+    int duration() const                        { return m_duration; }
 
-    void stopWhenTicksOver(bool stop);
-    inline bool willStopWhenTicksOver()         { return m_stopWhenTicksOver; }
+    void setTicksInterval(const int interval);
+    int ticksInterval() const                   { return m_ticksInterval; }
 
-    void setType(LTimer::Type timerType);
-    inline LTimer::Type timerType()             { return m_timerType; }
-    inline QElapsedTimer::ClockType clockType() { return elapsedTimer->clockType(); }
-    inline bool isMonotonic()                   { return elapsedTimer->isMonotonic(); }
+    void setTicksCount(const int count);
+    int ticksCount() const                      { return m_ticksCount; }
+
+    void stopWhenTicksOver(const bool stop);
+    bool willStopWhenTicksOver() const          { return m_stopWhenTicksOver; }
+
+    void setType(const LTimer::Type timerType);
+    LTimer::Type timerType() const              { return m_timerType; }
+
+    QElapsedTimer::ClockType clockType() const  { return m_elapsedTimer->clockType(); }
+    bool isMonotonic() const                    { return m_elapsedTimer->isMonotonic(); }
 
     void start();
     void pause();
     void resume();
-    void stop();
-    inline LTimer::State state()                { return m_state; }
+    void stop();    
 
     int elapsed();
     int remaining();
-    inline int lastTickElapsed()                { return m_lastTickElapsed; }
-    int lastTickRemaining();
-    inline int lastTick()                       { return m_lastTick; }
+    int lastTickElapsed() const                 { return m_lastTickElapsed; }
+    int lastTickRemaining() const;
+    int lastTick() const                        { return m_lastTick; }
 
 signals:
     void tick(int);
@@ -61,9 +63,9 @@ signals:
     void stateChanged(int);
 
 private:
-    QElapsedTimer *elapsedTimer;
-    QTimer *tickTimer = Q_NULLPTR;
-    QTimer *mainTimer = Q_NULLPTR;
+    QElapsedTimer *m_elapsedTimer;
+    QTimer *m_tickTimer = nullptr;
+    QTimer *m_mainTimer = nullptr;
 
     bool m_stopWhenTicksOver = false;
     int m_duration = -1;
@@ -76,8 +78,9 @@ private:
     int m_lastTickElapsed = 0;
     int m_lastTick = 0;
 
+private:
     template<typename Func> QTimer *newTimer(Func slot);
-    int _duration();
+    int _duration() const;
     void _tick();
     int newTickInterval();
 };

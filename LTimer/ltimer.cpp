@@ -1,11 +1,12 @@
 #include "ltimer.h"
+
 #include <QtMath>
 
 
 
 LTimer::LTimer(QObject *parent) :
     QObject(parent),
-    elapsedTimer(new QElapsedTimer)
+    m_elapsedTimer(new QElapsedTimer)
 {
 }
 
@@ -13,12 +14,12 @@ LTimer::LTimer(QObject *parent) :
 
 LTimer::~LTimer()
 {
-    delete elapsedTimer;
+    delete m_elapsedTimer;
 }
 
 
 
-void LTimer::setDuraton(int duration)
+void LTimer::setDuraton(const int duration)
 {
     if (m_state == LTimer::Inactive)
         m_duration = duration;
@@ -26,7 +27,7 @@ void LTimer::setDuraton(int duration)
 
 
 
-void LTimer::setTicksInterval(int interval)
+void LTimer::setTicksInterval(const int interval)
 {
     if (m_state == LTimer::Inactive)
         m_ticksInterval = interval;
@@ -34,7 +35,7 @@ void LTimer::setTicksInterval(int interval)
 
 
 
-void LTimer::setTicksCount(int count)
+void LTimer::setTicksCount(const int count)
 {
     if (m_state == LTimer::Inactive)
         m_ticksCount= count;
@@ -42,7 +43,7 @@ void LTimer::setTicksCount(int count)
 
 
 
-void LTimer::setType(LTimer::Type type)
+void LTimer::setType(const LTimer::Type type)
 {
     if (m_state == LTimer::Inactive)
         m_timerType = type;
@@ -50,7 +51,7 @@ void LTimer::setType(LTimer::Type type)
 
 
 
-void LTimer::stopWhenTicksOver(bool stop)
+void LTimer::stopWhenTicksOver(const bool stop)
 {
     if (m_state == LTimer::Inactive)
         m_stopWhenTicksOver = stop;
@@ -64,31 +65,31 @@ void LTimer::start()
     m_lastTickElapsed = 0;
     m_lastTick = 0;
 
-    elapsedTimer->start();
+    m_elapsedTimer->start();
 
     if (m_ticksInterval >= 0 && m_ticksCount != 0) {
-        if (tickTimer == Q_NULLPTR)
-            tickTimer = newTimer(&LTimer::_tick);
-        tickTimer->start(m_ticksInterval);
+        if (m_tickTimer == nullptr)
+            m_tickTimer = newTimer(&LTimer::_tick);
+        m_tickTimer->start(m_ticksInterval);
     }
-    else if (tickTimer != Q_NULLPTR) {
-        tickTimer->stop();
-        tickTimer->deleteLater();
-        tickTimer = Q_NULLPTR;
+    else if (m_tickTimer != nullptr) {
+        m_tickTimer->stop();
+        m_tickTimer->deleteLater();
+        m_tickTimer = nullptr;
     }
 
     if (!m_stopWhenTicksOver && m_duration >= 0) {
-        if (mainTimer == Q_NULLPTR)
-            mainTimer = newTimer([this]() {
+        if (m_mainTimer == nullptr)
+            m_mainTimer = newTimer([this]() {
                 stop();
                 emit timeout();
             });
-        mainTimer->start(m_duration);
+        m_mainTimer->start(m_duration);
     }
-    else if (mainTimer != Q_NULLPTR) {
-        mainTimer->stop();
-        mainTimer->deleteLater();
-        mainTimer = Q_NULLPTR;
+    else if (m_mainTimer != nullptr) {
+        m_mainTimer->stop();
+        m_mainTimer->deleteLater();
+        m_mainTimer = nullptr;
     }
 
     m_state = Running;
@@ -119,13 +120,13 @@ void LTimer::pause()
     if (m_state != Running)
         return;
 
-    m_elapsed += elapsedTimer->elapsed();
+    m_elapsed += m_elapsedTimer->elapsed();
 
-    if (tickTimer != Q_NULLPTR)
-        tickTimer->stop();
+    if (m_tickTimer != nullptr)
+        m_tickTimer->stop();
 
-    if (mainTimer != Q_NULLPTR)
-        mainTimer->stop();
+    if (m_mainTimer != nullptr)
+        m_mainTimer->stop();
 
     m_state = Paused;
     emit stateChanged(m_state);
@@ -138,23 +139,23 @@ void LTimer::resume()
     if (m_state != Paused)
         return;
 
-    elapsedTimer->restart();
+    m_elapsedTimer->restart();
 
-    if (tickTimer != Q_NULLPTR) {
-        int timeToTick = m_lastTickElapsed + tickTimer->interval() - m_elapsed;
+    if (m_tickTimer != nullptr) {
+        int timeToTick = m_lastTickElapsed + m_tickTimer->interval() - m_elapsed;
         if (timeToTick < 0)
             timeToTick = 0;
 
         QTimer::singleShot(timeToTick, this, [this]() {
             if (m_state == Running) {
                 _tick();
-                tickTimer->start(newTickInterval());
+                m_tickTimer->start(newTickInterval());
             }
         });
     }
 
-    if (mainTimer != Q_NULLPTR)
-        mainTimer->start(m_duration - m_elapsed);
+    if (m_mainTimer != nullptr)
+        m_mainTimer->start(m_duration - m_elapsed);
 
     m_state = Running;
     emit stateChanged(m_state);
@@ -167,18 +168,18 @@ void LTimer::stop()
     if (m_state == Inactive)
         return;
 
-    m_elapsed += elapsedTimer->elapsed();
+    m_elapsed += m_elapsedTimer->elapsed();
 
-    if (tickTimer != Q_NULLPTR) {
-        tickTimer->stop();
-        tickTimer->deleteLater();
-        tickTimer = Q_NULLPTR;
+    if (m_tickTimer != nullptr) {
+        m_tickTimer->stop();
+        m_tickTimer->deleteLater();
+        m_tickTimer = nullptr;
     }
 
-    if (mainTimer != Q_NULLPTR) {
-        mainTimer->stop();
-        mainTimer->deleteLater();
-        mainTimer = Q_NULLPTR;
+    if (m_mainTimer != nullptr) {
+        m_mainTimer->stop();
+        m_mainTimer->deleteLater();
+        m_mainTimer = nullptr;
     }
 
     m_state = Inactive;
@@ -190,7 +191,7 @@ void LTimer::stop()
 int LTimer::elapsed()
 {
     if (m_state == Running)
-        return static_cast<int>(elapsedTimer->elapsed()) + m_elapsed;
+        return static_cast<int>(m_elapsedTimer->elapsed()) + m_elapsed;
     return m_elapsed;
 }
 
@@ -206,14 +207,14 @@ int LTimer::remaining()
     int remainingTime = d - m_elapsed;
 
     if (m_state == Running)
-        remainingTime -= elapsedTimer->elapsed();
+        remainingTime -= m_elapsedTimer->elapsed();
 
     return remainingTime > 0 ? remainingTime : 0;
 }
 
 
 
-int LTimer::lastTickRemaining()
+int LTimer::lastTickRemaining() const
 {
     const int d = _duration();
 
@@ -227,7 +228,7 @@ int LTimer::lastTickRemaining()
 
 
 
-int LTimer::_duration()
+int LTimer::_duration() const
 {
     if (!m_stopWhenTicksOver)
         return m_duration;
@@ -248,7 +249,7 @@ void LTimer::_tick()
         emit timeout();
     }
     else
-        tickTimer->start(newTickInterval());
+        m_tickTimer->start(newTickInterval());
 }
 
 
@@ -259,7 +260,7 @@ int LTimer::newTickInterval()
         return m_ticksInterval;
 
     const double newInterval = static_cast<double>(m_lastTickElapsed)
-            *static_cast<double>(tickTimer->interval())/static_cast<double>(elapsed());
+            *static_cast<double>(m_tickTimer->interval())/static_cast<double>(elapsed());
 
     return qRound(newInterval);
 }

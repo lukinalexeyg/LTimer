@@ -1,8 +1,6 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-HEADERS += \
-    $$PWD/ltimer.h
+HEADERS += $$PWD/ltimer.h
 	
-SOURCES += \
-    $$PWD/ltimer.cpp
+SOURCES += $$PWD/ltimer.cpp
