@@ -1,31 +1,35 @@
+#include "ltimer.h"
+
 #include <QCoreApplication>
 #include <QDebug>
+
 #include <math.h>
-#include "../LTimer/ltimer.h"
+
+static constexpr qint64 s_count = 100000000;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    LTimer lTimer;
+    LTimer timer;
 
     qDebug() << "start";
-    lTimer.start();
+    timer.start();
 
-    for (qint64 i = 0; i < 100000000; i++)
-        double value = exp(static_cast<double>(i));
+    for (qint64 i = 0; i < s_count; ++i)
+        exp(i);
 
-    lTimer.pause();
-    qDebug() << "pause" << lTimer.elapsed();
+    timer.pause();
+    qDebug() << "pause" << timer.elapsed();
 
-    for (qint64 i = 0; i < 1000000000; i++)
-        double value = log(static_cast<double>(i));
-    lTimer.resume();
-    qDebug() << "resume" << lTimer.elapsed();
+    for (qint64 i = 0; i < s_count; ++i)
+        log(i);
 
-    for (qint64 i = 0; i < 1000000000; i++)
-        double value = sqrt(static_cast<double>(i));
-    qDebug() << "stop" << lTimer.elapsed();
-    lTimer.stop();
+    timer.resume();
+    qDebug() << "resume" << timer.elapsed();
 
-    return a.exec();
+    for (qint64 i = 0; i < s_count; ++i)
+        sqrt(i);
+
+    qDebug() << "stop" << timer.elapsed();
+    timer.stop();
 }

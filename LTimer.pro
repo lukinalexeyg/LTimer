@@ -1,4 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += test precisiontest \
-    example
-
+SUBDIRS += example precisiontest test
