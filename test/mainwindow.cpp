@@ -1,7 +1,16 @@
-#include <QSpinBox>
-#include <QDebug>
 #include "mainwindow.h"
+
 #include "ui_mainwindow.h"
+
+#include <QDebug>
+#include <QSpinBox>
+
+static const QStringList s_typeNames = { "Precise", "Coarse", "VeryCoarse", "CoarseStabilized" };
+static const QStringList s_stateNames = { "Inactive", "Running", "Paused" };
+
+static constexpr int s_defaultDuration = 20000;
+static constexpr int s_defaultTickInterval = 200;
+static constexpr int s_defaultTicksCount = 100;
 
 
 
@@ -13,16 +22,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(qApp->applicationName());
 
-    ui->spinBox_duration->setValue(DEFAULT_DURATION);
-    ui->spinBox_ticksInterval->setValue(DEFAULT_TICKS_INTERVAL);
-    ui->spinBox_ticksCount->setValue(DEFAULT_TICKS_COUNT);
-    ui->comboBox_type->insertItems(0, TYPES_STRINGS);
+    ui->spinBox_duration->setValue(s_defaultDuration);
+    ui->spinBox_ticksInterval->setValue(s_defaultTickInterval);
+    ui->spinBox_ticksCount->setValue(s_defaultTicksCount);
+    ui->comboBox_type->insertItems(0, s_typeNames);
     ui->comboBox_type->setCurrentIndex(m_lTimer->timerType());
     ui->checkBox_stopWhenTicksOver->setChecked(m_lTimer->willStopWhenTicksOver());
 
-    m_lTimer->setDuraton(DEFAULT_DURATION);
-    m_lTimer->setTicksInterval(DEFAULT_TICKS_INTERVAL);
-    m_lTimer->setTicksCount(DEFAULT_TICKS_COUNT);
+    m_lTimer->setDuraton(s_defaultDuration);
+    m_lTimer->setTicksInterval(s_defaultTickInterval);
+    m_lTimer->setTicksCount(s_defaultTicksCount);
 
     setProgressBarValue();
 
@@ -33,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_stop, &QPushButton::released, this, &MainWindow::stop);
     connect(m_lTimer, &LTimer::tick, this, &MainWindow::tick);
 
-    connect(m_lTimer, &LTimer::stateChanged, this, [this](int state) {
-        ui->statusBar->showMessage("Current state: "+STATES_STRINGS.at(state));
+    connect(m_lTimer, &LTimer::stateChanged, this, [this](const int state) {
+        ui->statusBar->showMessage(QStringLiteral("Current state: ") + s_stateNames.at(state));
     });
 }
 
@@ -100,7 +109,7 @@ void MainWindow::stop()
 
 
 
-void MainWindow::tick(int tick)
+void MainWindow::tick(const int tick)
 {
     setProgressBarValue();
 
