@@ -2,6 +2,7 @@
 #define LTIMER_H
 
 #include <QElapsedTimer>
+#include <QSharedPointer>
 #include <QTimer>
 
 class LTimer : public QObject
@@ -26,7 +27,7 @@ public:
     LTimer(QObject *parent = nullptr);
     ~LTimer();
 
-    LTimer::State state() const                 { return m_state; }
+    State state() const                         { return m_state; }
 
     void setDuraton(const int duration);
     int duration() const                        { return m_duration; }
@@ -40,8 +41,8 @@ public:
     void stopWhenTicksOver(const bool stop);
     bool willStopWhenTicksOver() const          { return m_stopWhenTicksOver; }
 
-    void setType(const LTimer::Type timerType);
-    LTimer::Type timerType() const              { return m_timerType; }
+    void setType(const Type timerType);
+    Type timerType() const                      { return m_timerType; }
 
     QElapsedTimer::ClockType clockType() const  { return m_elapsedTimer->clockType(); }
     bool isMonotonic() const                    { return m_elapsedTimer->isMonotonic(); }
@@ -51,38 +52,42 @@ public:
     void resume();
     void stop();    
 
-    int elapsed();
-    int remaining();
+    int elapsed() const;
+    int remaining() const;
+
     int lastTickElapsed() const                 { return m_lastTickElapsed; }
     int lastTickRemaining() const;
     int lastTick() const                        { return m_lastTick; }
 
 signals:
+    void stateChanged(int);
     void tick(int);
     void timeout();
-    void stateChanged(int);
 
 private:
     QElapsedTimer *m_elapsedTimer;
-    QTimer *m_tickTimer = nullptr;
-    QTimer *m_mainTimer = nullptr;
+    QSharedPointer<QTimer> m_tickTimer;
+    QSharedPointer<QTimer> m_durationTimer;
 
-    bool m_stopWhenTicksOver = false;
-    int m_duration = -1;
-    int m_ticksInterval = 1000;
-    int m_ticksCount = -1;
-    Type m_timerType = CoarseStabilized;
-    State m_state = Inactive;
+    State m_state;
+    Type m_timerType;
+    bool m_stopWhenTicksOver;
+    int m_duration;
+    int m_ticksInterval;
+    int m_ticksCount;
 
-    int m_elapsed = 0;
-    int m_lastTickElapsed = 0;
-    int m_lastTick = 0;
+    int m_elapsed;
+    int m_lastTickElapsed;
+    int m_lastTick;
 
 private:
-    template<typename Func> QTimer *newTimer(Func slot);
-    int _duration() const;
+    void startTickTimer();
+    void startDurationTimer();
+    template<typename Functor> QSharedPointer<QTimer> newTimer(Functor functor) const;
     void _tick();
-    int newTickInterval();
+    int _tickInterval() const;
+    void _stop();
+    int _duration() const;
 };
 
 #endif // LTIMER_H
