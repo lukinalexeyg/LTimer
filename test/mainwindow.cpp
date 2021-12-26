@@ -73,7 +73,7 @@ void MainWindow::start()
     m_lTimer->setDuraton(ui->spinBox_duration->value());
     m_lTimer->setTicksInterval(ui->spinBox_ticksInterval->value());
     m_lTimer->setTicksCount(ui->spinBox_ticksCount->value());
-    m_lTimer->setType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
+    m_lTimer->setTimerType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
     m_lTimer->stopWhenTicksOver(ui->checkBox_stopWhenTicksOver->isChecked());
     m_lTimer->start();
 

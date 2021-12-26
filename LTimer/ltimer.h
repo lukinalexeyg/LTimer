@@ -41,7 +41,7 @@ public:
     void stopWhenTicksOver(const bool stop);
     bool willStopWhenTicksOver() const          { return m_stopWhenTicksOver; }
 
-    void setType(const Type timerType);
+    void setTimerType(const Type type);
     Type timerType() const                      { return m_timerType; }
 
     QElapsedTimer::ClockType clockType() const  { return m_elapsedTimer->clockType(); }

@@ -1,7 +1,5 @@
 #include "ltimer.h"
 
-#include <QtMath>
-
 
 
 LTimer::LTimer(QObject *parent) :
@@ -52,7 +50,7 @@ void LTimer::setTicksCount(const int count)
 
 
 
-void LTimer::setType(const Type type)
+void LTimer::setTimerType(const Type type)
 {
     if (m_state == State::Inactive)
         m_timerType = type;
@@ -120,7 +118,7 @@ QSharedPointer<QTimer> LTimer::newTimer(Functor functor) const
     if (m_timerType == Type::CoarseStabilized)
         timer->setTimerType(Qt::TimerType::CoarseTimer);
     else
-        timer->setTimerType(static_cast<Qt::TimerType>(m_timerType));        
+        timer->setTimerType(static_cast<Qt::TimerType>(m_timerType));
 
     connect(timer.get(), &QTimer::timeout, this, functor);
 

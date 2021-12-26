@@ -42,7 +42,7 @@ void PrecisionTest::timeout()
 void PrecisionTest::run()
 {
     m_lTimer->setTicksCount(ui->spinBox_ticksCount->value());
-    m_lTimer->setType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
+    m_lTimer->setTimerType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
     _run(ui->spinBox_minTicksInterval->value());
 }
 
