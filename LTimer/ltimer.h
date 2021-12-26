@@ -67,7 +67,9 @@ public:
 signals:
     void stateChanged(int);
     void tick(int);
+    void stopped();
     void timeout();
+    void ranOutOfTicks();
 
 private:
     QElapsedTimer *m_elapsedTimer;

@@ -199,7 +199,13 @@ int LTimer::_tickInterval() const
 void LTimer::_stop()
 {
     stop();
-    emit timeout();
+
+    emit stopped();
+
+    if (m_stopPolicy == StopPolicy::ByTimeout)
+        emit timeout();
+    else
+        emit ranOutOfTicks();
 }
 
 

@@ -22,11 +22,18 @@ private:
     LTimer *m_lTimer;
 
 private:
-    void onGet();
     void start();
     void pause();
     void stop();
-    void tick(const int tick);
+    void onGet();
+
+    void onTimerStateChanged(const int state);
+    void onTimerTick(const int tick);
+    void onTimerTimeout();
+    void onTimerRanOutOfTicks();
+
+    void writeDebug(const QString &text);
+
     void setWidgetsEnabled(const bool enabled);
     void setProgressBarValue();
 };
