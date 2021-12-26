@@ -7,7 +7,7 @@ LTimer::LTimer(QObject *parent) :
     m_elapsedTimer(new QElapsedTimer),
     m_state(State::Inactive),
     m_timerType(Type::CoarseStabilized),
-    m_stopWhenTicksOver(false),
+    m_stopPolicy(StopPolicy::ByTimeout),
     m_duration(-1),
     m_ticksInterval(1000),
     m_ticksCount(-1),
@@ -58,10 +58,10 @@ void LTimer::setTimerType(const Type type)
 
 
 
-void LTimer::stopWhenTicksOver(const bool stop)
+void LTimer::setStopPolicy(const StopPolicy policy)
 {
     if (m_state == State::Inactive)
-        m_stopWhenTicksOver = stop;
+        m_stopPolicy = policy;
 }
 
 
@@ -98,7 +98,7 @@ void LTimer::startTickTimer()
 
 void LTimer::startDurationTimer()
 {
-    if (!m_stopWhenTicksOver && m_duration >= 0) {
+    if (m_stopPolicy == StopPolicy::ByTimeout && m_duration >= 0) {
         if (m_durationTimer.isNull())
             m_durationTimer = newTimer(&LTimer::_stop);
         m_durationTimer->start(m_duration);
@@ -175,7 +175,7 @@ void LTimer::_tick()
     m_lastTick++;
     emit tick(m_lastTick);
 
-    if (m_stopWhenTicksOver && m_ticksCount > 0 && m_lastTick >= m_ticksCount)
+    if (m_stopPolicy == StopPolicy::ByRanOutOfTicks && m_ticksCount > 0 && m_lastTick >= m_ticksCount)
         _stop();
     else
         m_tickTimer->start(_tickInterval());
@@ -262,7 +262,7 @@ int LTimer::lastTickRemaining() const
 
 int LTimer::_duration() const
 {
-    return m_stopWhenTicksOver
+    return m_stopPolicy == StopPolicy::ByRanOutOfTicks
             ? m_ticksInterval * m_ticksCount
             : m_duration;
 }

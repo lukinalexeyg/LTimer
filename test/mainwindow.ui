@@ -187,24 +187,6 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="QCheckBox" name="checkBox_stopWhenTicksOver">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="spinBox_ticksCount">
            <property name="sizePolicy">
@@ -285,6 +267,9 @@
             <string>Stop when ticks over</string>
            </property>
           </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QComboBox" name="comboBox_stopPolicy"/>
          </item>
         </layout>
        </item>

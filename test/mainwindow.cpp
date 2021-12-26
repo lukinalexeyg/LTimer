@@ -5,8 +5,9 @@
 #include <QDebug>
 #include <QSpinBox>
 
-static const QStringList s_typeNames = { "Precise", "Coarse", "VeryCoarse", "CoarseStabilized" };
 static const QStringList s_stateNames = { "Inactive", "Running", "Paused" };
+static const QStringList s_typeNames = { "Precise", "Coarse", "VeryCoarse", "CoarseStabilized" };
+static const QStringList s_stopPolicyNames = { "By timeout", "By ran out of ticks" };
 
 static constexpr int s_defaultDuration = 20000;
 static constexpr int s_defaultTickInterval = 200;
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_ticksCount->setValue(s_defaultTicksCount);
     ui->comboBox_type->insertItems(0, s_typeNames);
     ui->comboBox_type->setCurrentIndex(m_lTimer->timerType());
-    ui->checkBox_stopWhenTicksOver->setChecked(m_lTimer->willStopWhenTicksOver());
+    ui->comboBox_stopPolicy->insertItems(0, s_stopPolicyNames);
 
     m_lTimer->setDuraton(s_defaultDuration);
     m_lTimer->setTicksInterval(s_defaultTickInterval);
@@ -74,7 +75,7 @@ void MainWindow::start()
     m_lTimer->setTicksInterval(ui->spinBox_ticksInterval->value());
     m_lTimer->setTicksCount(ui->spinBox_ticksCount->value());
     m_lTimer->setTimerType(static_cast<LTimer::Type>(ui->comboBox_type->currentIndex()));
-    m_lTimer->stopWhenTicksOver(ui->checkBox_stopWhenTicksOver->isChecked());
+    m_lTimer->setStopPolicy(static_cast<LTimer::StopPolicy>(ui->comboBox_stopPolicy->currentIndex()));
     m_lTimer->start();
 
     setProgressBarValue();
@@ -124,11 +125,11 @@ void MainWindow::tick(const int tick)
 
 void MainWindow::setWidgetsEnabled(bool enabled)
 {
-    ui->checkBox_stopWhenTicksOver->setEnabled(enabled);
     ui->spinBox_duration->setEnabled(enabled);
     ui->spinBox_ticksInterval->setEnabled(enabled);
     ui->spinBox_ticksCount->setEnabled(enabled);
     ui->comboBox_type->setEnabled(enabled);
+    ui->comboBox_stopPolicy->setEnabled(enabled);
 }
 
 

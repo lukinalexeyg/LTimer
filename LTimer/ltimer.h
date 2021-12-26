@@ -23,6 +23,11 @@ public:
         CoarseStabilized
     };
 
+    enum StopPolicy {
+        ByTimeout,
+        ByRanOutOfTicks
+    };
+
 public:
     LTimer(QObject *parent = nullptr);
     ~LTimer();
@@ -38,8 +43,8 @@ public:
     void setTicksCount(const int count);
     int ticksCount() const                      { return m_ticksCount; }
 
-    void stopWhenTicksOver(const bool stop);
-    bool willStopWhenTicksOver() const          { return m_stopWhenTicksOver; }
+    void setStopPolicy(const StopPolicy policy);
+    StopPolicy stopPolicy() const               { return m_stopPolicy; }
 
     void setTimerType(const Type type);
     Type timerType() const                      { return m_timerType; }
@@ -71,7 +76,8 @@ private:
 
     State m_state;
     Type m_timerType;
-    bool m_stopWhenTicksOver;
+    StopPolicy m_stopPolicy;
+
     int m_duration;
     int m_ticksInterval;
     int m_ticksCount;

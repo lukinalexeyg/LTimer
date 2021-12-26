@@ -9,7 +9,7 @@ PrecisionTest::PrecisionTest(Ui::MainWindow *ui, QObject *parent) :
     m_lTimer(new LTimer(this)),
     ui(ui)
 {
-    m_lTimer->stopWhenTicksOver(true);
+    m_lTimer->setStopPolicy(LTimer::ByRanOutOfTicks);
 
     connect(m_lTimer, &LTimer::tick, this, &PrecisionTest::tick);
     connect(m_lTimer, &LTimer::timeout, this, &PrecisionTest::timeout);
