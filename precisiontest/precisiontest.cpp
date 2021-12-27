@@ -11,20 +11,20 @@ PrecisionTest::PrecisionTest(Ui::MainWindow *ui, QObject *parent) :
 {
     m_lTimer->setStopPolicy(LTimer::ByRanOutOfTicks);
 
-    connect(m_lTimer, &LTimer::tick, this, &PrecisionTest::tick);
-    connect(m_lTimer, &LTimer::stopped, this, &PrecisionTest::timeout);
+    connect(m_lTimer, &LTimer::tick, this, &PrecisionTest::onTimerTick);
+    connect(m_lTimer, &LTimer::stopped, this, &PrecisionTest::onTimerStopped);
 }
 
 
 
-void PrecisionTest::tick()
+void PrecisionTest::onTimerTick(const int tick)
 {
-    m_faultSums += static_cast<double>(m_lTimer->lastTickElapsed()) / static_cast<double>(m_lTimer->elapsed());
+    m_faultSums += static_cast<double>(m_lTimer->lastTickElapsed()) / static_cast<double>(tick * m_lTimer->ticksInterval());
 }
 
 
 
-void PrecisionTest::timeout()
+void PrecisionTest::onTimerStopped()
 {
     m_averageFault = static_cast<double>(m_faultSums) / static_cast<double>(m_lTimer->lastTick());
     emit step(m_lTimer->ticksInterval(), m_averageFault);

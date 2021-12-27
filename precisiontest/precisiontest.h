@@ -25,8 +25,8 @@ private:
     double m_averageFault;
 
 private:
-    void tick();
-    void timeout();
+    void onTimerTick(const int tick);
+    void onTimerStopped();
     void _run(const int ticksInterval);
 };
 
